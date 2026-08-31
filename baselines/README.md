@@ -1,7 +1,7 @@
 # Baselines
 
-The figures quoted throughout this repo — sessions running 5.3× high when summed across event
-names, users at 1.14× when summed across days — came from one real property. **They are not GA4
+The figures quoted throughout this repo , sessions running 5.3× high when summed across event
+names, users at 1.14× when summed across days , came from one real property. **They are not GA4
 constants.** They describe how one set of visitors behaved.
 
 Yours will differ, sometimes a lot. A single-page site has almost no page-path overcount. A
@@ -30,7 +30,7 @@ See [docs/04 §3](../docs/04-reconciliation.md#3-score-against-your-own-baseline
 | `30_cross_grain.sql` | Daily rolled up vs monthly |
 | `40_subset_rollup.sql` | Bounds for user counts across a group of dimension values |
 
-Run them on a complete month with healthy data. Record the results somewhere durable — a file in
+Run them on a complete month with healthy data. Record the results somewhere durable , a file in
 this repo works well, and it's the thing you'll want when a number changes six months from now.
 
 ## One property's results, for scale
@@ -51,4 +51,4 @@ Roughly 65,000 sessions and 51,000 monthly users, ecommerce, multi-site hospital
 
 Read these as orders of magnitude, not as targets. The point of the table is that the errors range
 from "ignore it" to "your number is five times too big" depending entirely on which dimension you
-summed across — and nothing in the data tells you which case you're in.
+summed across , and nothing in the data tells you which case you're in.
