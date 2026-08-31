@@ -126,10 +126,10 @@ This one surprises people, and it explains two of the most common GA4 complaints
 are assigned per *event*, by timestamp. So:
 
 - A session running from 23:50 to 00:10 has events in two days and counts as a session in both.
-  Summing daily sessions across a month comes out above the monthly figure — measured at about
+  Summing daily sessions across a month comes out above the monthly figure , measured at about
   **+1.5%** on one property.
 - Somebody who visits on the 3rd, the 11th and the 27th is an active user on all three days.
-  Summing daily users across a month is meaningless — measured at about **1.14×** the true
+  Summing daily users across a month is meaningless , measured at about **1.14×** the true
   monthly number.
 
 Nothing is broken and there's no fix. Ask for the grain you intend to report. This is why the
@@ -223,7 +223,7 @@ constant.
 1. **Write down the question.** "Transactions by channel by month," not "a channel table."
 2. **Find the scope of the answer.** Transactions are session-scoped.
 3. **Pick dimensions at or above that scope.** `sessionDefaultChannelGroup` is session-scoped.
-   `yearMonth` is technically event-scoped, which is fine here — you're asking for that grain,
+   `yearMonth` is technically event-scoped, which is fine here , you're asking for that grain,
    not summing across it.
 4. **Throw out anything below it.** No event names, no page paths, no item brands.
 5. **Check it with the API first.** The `checkCompatibility` method takes your proposed dimensions
@@ -237,7 +237,7 @@ constant.
 
 **Safe, and unusually so.** Dimensions `sessionMedium` + `eventName`, metrics `eventCount` +
 `keyEvents`. Every event has one name and sits in one session, which has one medium, so each
-event falls in exactly one cell. Roll up across medium, across event name, or both — all exact.
+event falls in exactly one cell. Roll up across medium, across event name, or both , all exact.
 Cross-tabs this well-behaved are rare, so it's a good table to have.
 
 That safety comes entirely from the *metric* list. Add `sessions` and you've built a 5.3×
@@ -276,7 +276,7 @@ The slice has to exist when the request is made.
 
 The metric cap bites more often than the dimension cap. A totals report carrying a full engagement
 set has no room left for transactions, which forces a second date-only report joined one-to-one.
-Two reports at identical grain join safely — that's the standard escape hatch.
+Two reports at identical grain join safely , that's the standard escape hatch.
 
 ### Cardinality and `(other)`
 
@@ -350,7 +350,7 @@ staging layer in [sql/](../sql/) does this with `QUALIFY ROW_NUMBER()`.
 credit across touchpoints. Sum first, round last. Rounding each row and then adding won't tie back
 to your totals.
 
-Refund-bearing metrics — `transactions`, `totalRevenue` — can restate *downward*. That's expected,
+Refund-bearing metrics , `transactions`, `totalRevenue` , can restate *downward*. That's expected,
 not a fault. Don't put an alert on it.
 
 ### Quotas
