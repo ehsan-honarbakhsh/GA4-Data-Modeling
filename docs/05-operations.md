@@ -1,7 +1,7 @@
 # Operations
 
 Practical notes on running this design: how changes propagate, what breaks quietly, and the
-mistakes that cost the most time. Most of this was learned the expensive way.
+mistakes that cost the most time. 
 
 ---
 
@@ -111,7 +111,7 @@ nobody tagged." Merging them turns a tagging gap into a phantom total.
 
 Two that recur, both worth checking early because both are invisible in SQL:
 
-**Case and punctuation splits.** `acme_north` and `Acme North` are two values as far as GA4 is
+**Case and punctuation splits.** `X_north` and `X North` are two values as far as GA4 is
 concerned. A brand or segment that appears twice in a dimension list with slightly different
 spelling is a tagging inconsistency, and normalising it in SQL only hides it. Fix the tag.
 
@@ -130,7 +130,7 @@ the dimension value list, which is worth doing whenever a new dimension goes liv
    [docs/02 §5](02-scopes-and-compatibility.md#5-how-to-design-a-report).
 2. Check compatibility against the API before building anything.
 3. Estimate cardinality with the dimensions combined, not separately.
-4. Add it to [spec/reports.yaml](../spec/reports.yaml) first — that file is the source of truth,
+4. Add it to [spec/reports.yaml](../spec/reports.yaml) first , that file is the source of truth,
    and generating config from it keeps every environment consistent.
 5. Build the staging model, including every dimension in the deduplication key.
 6. Add the primary key test.
@@ -140,11 +140,11 @@ the dimension value list, which is worth doing whenever a new dimension goes liv
 ### When cloning to another property
 
 The safest pattern is to copy an existing report definition from the **target** property and
-change only what differs — the table name, the dimensions, the metrics. Property-specific things
+change only what differs , the table name, the dimensions, the metrics. Property-specific things
 like custom dimension IDs and custom channel group IDs then follow the target automatically, and
 any field you didn't think about is preserved rather than guessed.
 
-The alternative — exporting from a source property and stripping out what doesn't apply — works
+The alternative , exporting from a source property and stripping out what doesn't apply , works
 for a bulk migration but is backwards for adding one report, because it requires you to know in
 advance how the target is configured.
 
@@ -168,7 +168,7 @@ your code. And batch schema changes so you approve once rather than three times.
 ### Environment variables don't survive a new shell
 
 An authentication error immediately after opening a terminal is almost always empty credentials
-rather than wrong ones — an empty user and password sends a malformed auth header, and the API
+rather than wrong ones , an empty user and password sends a malformed auth header, and the API
 reports it as an auth failure.
 
 Keep credentials in a single file with restrictive permissions, source it at the start of a
@@ -210,5 +210,3 @@ Keep a short record somewhere durable — a file in this repo works — of:
 - Which reports carry a segment dimension and which don't.
 - Any dimension whose values are known to be unreliable, and why.
 
-None of this is interesting until the day someone asks why a number changed, at which point it's
-the only thing that helps.
