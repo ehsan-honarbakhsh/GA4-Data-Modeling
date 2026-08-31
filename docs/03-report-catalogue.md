@@ -1,7 +1,7 @@
 # The report catalogue
 
 A working set of GA4 reports, organised by what each one is for. Every table here follows the
-rules in [docs/02](02-scopes-and-compatibility.md) — nothing mixes scopes, and nothing carries a
+rules in [docs/02](02-scopes-and-compatibility.md) , nothing mixes scopes, and nothing carries a
 metric it can't support.
 
 The machine-readable version is [spec/reports.yaml](../spec/reports.yaml). Use that to generate
@@ -14,9 +14,8 @@ your ingestion config rather than retyping any of this.
 The catalogue splits into three groups that do different jobs.
 
 **Tier 0 — totals.** One row per period, no breakdown. Because they have no dimensions, they have
-no additivity problems at all — which makes them the only place a correct *total* comes from. See
-[the section below](#the-totals-tables-are-the-only-source-of-a-total); if you read one thing on
-this page, read that.
+no additivity problems at all , which makes them the only place a correct *total* comes from. See
+[the section below](#the-totals-tables-are-the-only-source-of-a-total).
 
 **Tier 1 — daily breakdowns.** One dimension set, daily grain. These drive trend charts. Session
 and event metrics are reliable here. User metrics are per-day only and must never be summed.
@@ -68,7 +67,7 @@ That's true of the geography tables, the device tables, all of them. Each row is
 computed for that exact question, so each row is exactly what GA4 would show you.
 
 **But only the totals tables give you a correct total.** Everywhere else, getting to a single
-headline number means summing rows — and summing is precisely where the additivity rule bites.
+headline number means summing rows , and summing is precisely where the additivity rule bites.
 
 So the practical rule:
 
@@ -79,7 +78,7 @@ So the practical rule:
 
 For sessions and revenue, summing a well-behaved breakdown gets close. Channel is session-scoped,
 so summing sessions across channels lands within a percent or so of the real total. Close, and
-tempting, and it will still drift — because the moment somebody points that query at the geography
+tempting, and it will still drift , because the moment somebody points that query at the geography
 table or the page table instead, the answer moves by 5% or 250% and nothing in the SQL looks
 different.
 
@@ -240,7 +239,7 @@ warehouse table — and only because of what was left out of it.
 
 ## Optional: a segment dimension
 
-Many properties carry a custom dimension that splits the business — brand, region, business unit,
+Many properties carry a custom dimension that splits the business , brand, region, business unit,
 site section. Adding it to every report gives you per-segment reporting across the board.
 
 Before you do, three things to know.
@@ -256,7 +255,7 @@ reports unsegmented, or add segmented twins alongside them. Deciding this after 
 re-running your validation.
 
 **It multiplies cardinality.** Every table's row count goes up by roughly the number of segments.
-Check your landing-page and city reports first — they're closest to the ceiling.
+Check your landing-page and city reports first , they're closest to the ceiling.
 
 If you add it, the segment column belongs in the deduplication key of every staging view. Leaving
 it out silently keeps one segment per period and discards the rest, which looks like missing data
