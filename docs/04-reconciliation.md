@@ -1,10 +1,8 @@
 # Reconciliation
 
-Your pipeline will break at some point. Reconciliation is how you find out before a stakeholder
-does.
-
+Your pipeline will break at some point. Reconciliation is how you find out.
 The hard part isn't writing the checks. It's that GA4's own arithmetic produces permanent,
-expected gaps — so a naive "does A equal B" test fires constantly, everyone learns to ignore it,
+expected gaps , so a naive "does A equal B" test fires constantly, everyone learns to ignore it,
 and the real breakage sails through six months later. A reconciliation layer is only useful if it
 distinguishes the two.
 
