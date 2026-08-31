@@ -1,0 +1,348 @@
+# GA4 report catalogue — the source of truth for this design.
+#
+# Generate your ingestion configuration from this file rather than typing report
+# definitions by hand. Every table in sql/ expects a landing table named after the
+# `name` field here, following spec/source-contract.md.
+#
+# Field meanings
+#   tier             0 = totals, 1 = daily breakdown, 2 = monthly breakdown, 3 = cross-tab
+#   scope            the scope of the narrowest dimension in the report
+#   additive_across  dimensions this report's metrics can safely be summed across
+#   never_sum        metrics that must never be summed across this report's dimensions
+#   caution          the thing someone will get wrong if nobody tells them
+
+version: 1
+
+defaults:
+  rollback_window_days: 30      # 90 if using data-driven attribution on revenue
+  timezone_note: "Date boundaries follow the GA4 property's reporting timezone, not yours."
+  segment_dimension: null       # e.g. "customEvent:business_unit" — see docs/03
+
+metric_sets:
+  totals: &totals
+    [totalUsers, activeUsers, newUsers, sessions, engagedSessions,
+     screenPageViews, eventCount, keyEvents, purchaseRevenue, userEngagementDuration]
+  session_monthly: &session_monthly
+    [totalUsers, activeUsers, newUsers, sessions, engagedSessions,
+     eventCount, keyEvents, purchaseRevenue, transactions]
+  item: &item
+    [itemsViewed, itemsAddedToCart, itemsPurchased, itemRevenue]
+
+reports:
+
+  # ---------------------------------------------------------------- tier 0
+  - name: ga4_totals_daily
+    tier: 0
+    grain: daily
+    scope: none
+    dimensions: [date]
+    metrics: *totals
+    caution: "At the 10-metric cap. Transactions will not fit — see ga4_ecommerce_totals_daily."
+
+  - name: ga4_totals_weekly
+    tier: 0
+    grain: weekly
+    scope: none
+    dimensions: [isoYearIsoWeek]
+    metrics: *totals
+    caution: "ISO year is not the calendar year at boundaries. Never parse a year from the first four characters."
+
+  - name: ga4_totals_monthly
+    tier: 0
+    grain: monthly
+    scope: none
+    dimensions: [yearMonth]
+    metrics: *totals
+    caution: "The anchor for every monthly reconciliation, and the only source of an exact monthly user count."
+
+  - name: ga4_ecommerce_totals_daily
+    tier: 0
+    grain: daily
+    scope: none
+    dimensions: [date]
+    metrics: [transactions, totalRevenue, totalPurchasers, ecommercePurchases]
+    caution: "Exists only because ga4_totals_daily is full. Joins to it one-to-one on date."
+
+  # ---------------------------------------------------------------- tier 1
+  - name: ga4_traffic_acquisition_daily
+    tier: 1
+    grain: daily
+    scope: session
+    dimensions: [date, sessionSource, sessionMedium, sessionCampaignName, sessionDefaultChannelGroup]
+    metrics: [sessions, engagedSessions, engagementRate, activeUsers, keyEvents, purchaseRevenue, transactions]
+    additive_across: [sessionSource, sessionMedium, sessionCampaignName, sessionDefaultChannelGroup]
+    never_sum: [activeUsers, engagementRate]
+
+  - name: ga4_user_acquisition_daily
+    tier: 1
+    grain: daily
+    scope: user
+    dimensions: [date, firstUserSource, firstUserMedium, firstUserCampaignName, firstUserDefaultChannelGroup]
+    metrics: [newUsers, totalUsers, engagedSessions, keyEvents, purchaseRevenue]
+    additive_across: [firstUserSource, firstUserMedium, firstUserCampaignName, firstUserDefaultChannelGroup]
+    never_sum: [totalUsers]
+    caution: "newUsers is the honest headline. Session metrics run ~3% high here because identity stitching can change a user's first-touch value mid-window."
+
+  - name: ga4_landing_pages_daily
+    tier: 1
+    grain: daily
+    scope: session
+    dimensions: [date, landingPagePlusQueryString]
+    metrics: [sessions, engagedSessions, activeUsers, keyEvents, purchaseRevenue, transactions]
+    additive_across: [landingPagePlusQueryString]
+    never_sum: [activeUsers]
+    caution: "Landing page is session-scoped, unlike page path. This is the table to use when someone asks for sessions by page."
+
+  - name: ga4_pages_daily
+    tier: 1
+    grain: daily
+    scope: event
+    dimensions: [date, hostName, pagePath]
+    metrics: [screenPageViews, eventCount, userEngagementDuration, bounceRate]
+    additive_across: [hostName, pagePath]
+    never_sum: [bounceRate]
+    caution: "Deliberately carries no session or user metrics. Page path is event-scoped; sessions would run ~2.5x high."
+
+  - name: ga4_events_daily
+    tier: 1
+    grain: daily
+    scope: event
+    dimensions: [date, eventName]
+    metrics: [eventCount, eventValue, keyEvents]
+    additive_across: [eventName]
+    caution: "Never add sessions or users. Measured at 5.3x overcount on sessions."
+
+  - name: ga4_geo_daily
+    tier: 1
+    grain: daily
+    scope: environment
+    dimensions: [date, country, region]
+    metrics: [sessions, engagedSessions, activeUsers, newUsers, transactions]
+    additive_across: [country, region]
+    never_sum: [activeUsers, newUsers]
+    caution: "Location resolves per event, so summed sessions run ~5% high. Do not use for figures that must tie out."
+
+  - name: ga4_geo_city_daily
+    tier: 1
+    grain: daily
+    scope: environment
+    dimensions: [date, city]
+    metrics: [sessions, activeUsers, transactions]
+    additive_across: [city]
+    never_sum: [activeUsers]
+    caution: "~7% session overcount. High cardinality — check for (other) rows."
+
+  - name: ga4_tech_daily
+    tier: 1
+    grain: daily
+    scope: environment
+    dimensions: [date, deviceCategory, browser, operatingSystem]
+    metrics: [sessions, engagedSessions, activeUsers, transactions]
+    additive_across: [deviceCategory, browser, operatingSystem]
+    never_sum: [activeUsers]
+
+  - name: ga4_ecommerce_channel_daily
+    tier: 1
+    grain: daily
+    scope: session
+    dimensions: [date, sessionDefaultChannelGroup]
+    metrics: [transactions, purchaseRevenue, averagePurchaseRevenue, purchaserRate, cartToViewRate]
+    additive_across: [sessionDefaultChannelGroup]
+    never_sum: [averagePurchaseRevenue, purchaserRate, cartToViewRate]
+
+  - name: ga4_ecommerce_items_daily
+    tier: 1
+    grain: daily
+    scope: item
+    dimensions: [date, itemId, itemName, itemBrand, itemCategory]
+    metrics: *item
+    caution: "itemRevenue excludes shipping and tax. Never reconcile it to purchaseRevenue."
+
+  # ---------------------------------------------------------------- tier 2
+  - name: ga4_channel_monthly
+    tier: 2
+    grain: monthly
+    scope: session
+    dimensions: [yearMonth, sessionDefaultChannelGroup]
+    metrics: *session_monthly
+    never_sum: [totalUsers, activeUsers, newUsers]
+
+  - name: ga4_medium_monthly
+    tier: 2
+    grain: monthly
+    scope: session
+    dimensions: [yearMonth, sessionMedium]
+    metrics: *session_monthly
+    never_sum: [totalUsers, activeUsers, newUsers]
+
+  - name: ga4_source_monthly
+    tier: 2
+    grain: monthly
+    scope: session
+    dimensions: [yearMonth, sessionSource]
+    metrics: *session_monthly
+    never_sum: [totalUsers, activeUsers, newUsers]
+
+  - name: ga4_campaign_monthly
+    tier: 2
+    grain: monthly
+    scope: user
+    dimensions: [yearMonth, firstUserCampaignName]
+    metrics: *session_monthly
+    never_sum: [totalUsers, activeUsers]
+    caution: "User-scoped dimension. newUsers is the honest headline."
+
+  - name: ga4_landing_pages_monthly
+    tier: 2
+    grain: monthly
+    scope: session
+    dimensions: [yearMonth, landingPagePlusQueryString]
+    metrics: *session_monthly
+    never_sum: [totalUsers, activeUsers, newUsers]
+    caution: "Highest-cardinality table in the set. Check for (other) rows every month."
+
+  - name: ga4_device_monthly
+    tier: 2
+    grain: monthly
+    scope: environment
+    dimensions: [yearMonth, deviceCategory]
+    metrics: *session_monthly
+    never_sum: [totalUsers, activeUsers, newUsers]
+
+  - name: ga4_os_monthly
+    tier: 2
+    grain: monthly
+    scope: environment
+    dimensions: [yearMonth, operatingSystem]
+    metrics: *session_monthly
+    never_sum: [totalUsers, activeUsers, newUsers]
+
+  - name: ga4_browser_monthly
+    tier: 2
+    grain: monthly
+    scope: environment
+    dimensions: [yearMonth, browser]
+    metrics: *session_monthly
+    never_sum: [totalUsers, activeUsers, newUsers]
+
+  - name: ga4_language_monthly
+    tier: 2
+    grain: monthly
+    scope: environment
+    dimensions: [yearMonth, language]
+    metrics: *session_monthly
+    never_sum: [totalUsers, activeUsers, newUsers]
+
+  - name: ga4_country_monthly
+    tier: 2
+    grain: monthly
+    scope: environment
+    dimensions: [yearMonth, country]
+    metrics: *session_monthly
+    never_sum: [totalUsers, activeUsers, newUsers]
+
+  - name: ga4_region_monthly
+    tier: 2
+    grain: monthly
+    scope: environment
+    dimensions: [yearMonth, region]
+    metrics: *session_monthly
+    never_sum: [totalUsers, activeUsers, newUsers]
+
+  - name: ga4_city_monthly
+    tier: 2
+    grain: monthly
+    scope: environment
+    dimensions: [yearMonth, city]
+    metrics: *session_monthly
+    never_sum: [totalUsers, activeUsers, newUsers]
+    caution: "High cardinality. Check for (other) rows."
+
+  - name: ga4_age_monthly
+    tier: 2
+    grain: monthly
+    scope: user
+    dimensions: [yearMonth, userAgeBracket]
+    metrics: *session_monthly
+    never_sum: [totalUsers, activeUsers, newUsers]
+    caution: "Requires Google Signals and is thresholded. Rows are removed, not zeroed. Never use as a denominator."
+
+  - name: ga4_gender_monthly
+    tier: 2
+    grain: monthly
+    scope: user
+    dimensions: [yearMonth, userGender]
+    metrics: *session_monthly
+    never_sum: [totalUsers, activeUsers, newUsers]
+    caution: "As ga4_age_monthly. Keep separate from age — crossing them multiplies thresholded rows."
+
+  - name: ga4_event_monthly
+    tier: 2
+    grain: monthly
+    scope: event
+    dimensions: [yearMonth, eventName]
+    metrics: [eventCount, eventValue, keyEvents]
+    additive_across: [eventName]
+    caution: "Event metrics only. Adding sessions or users here is the single most expensive mistake in this design."
+
+  - name: ga4_pages_monthly
+    tier: 2
+    grain: monthly
+    scope: event
+    dimensions: [yearMonth, pagePath]
+    metrics: [screenPageViews, eventCount, userEngagementDuration]
+    additive_across: [pagePath]
+
+  - name: ga4_item_name_monthly
+    tier: 2
+    grain: monthly
+    scope: item
+    dimensions: [yearMonth, itemName]
+    metrics: *item
+
+  - name: ga4_item_category_monthly
+    tier: 2
+    grain: monthly
+    scope: item
+    dimensions: [yearMonth, itemCategory]
+    metrics: *item
+
+  - name: ga4_item_brand_monthly
+    tier: 2
+    grain: monthly
+    scope: item
+    dimensions: [yearMonth, itemBrand]
+    metrics: *item
+    caution: "itemBrand is the product manufacturer. It is unrelated to any segment dimension you may run."
+
+  # ---------------------------------------------------------------- tier 3
+  - name: ga4_country_by_channel_monthly
+    tier: 3
+    grain: monthly
+    scope: session
+    dimensions: [yearMonth, country, sessionDefaultChannelGroup]
+    metrics: *session_monthly
+    never_sum: [totalUsers, activeUsers, newUsers]
+    caution: "Cross-tab. Read row by row, or filter to one value of one axis. Never sum across either."
+
+  - name: ga4_landing_page_by_channel_monthly
+    tier: 3
+    grain: monthly
+    scope: session
+    dimensions: [yearMonth, landingPage, sessionDefaultChannelGroup]
+    metrics: *session_monthly
+    never_sum: [totalUsers, activeUsers, newUsers]
+    caution: "Uses plain landingPage, not the query-string version — cardinality would be unmanageable otherwise."
+
+  - name: ga4_event_by_medium_monthly
+    tier: 3
+    grain: monthly
+    scope: event
+    dimensions: [yearMonth, sessionMedium, eventName]
+    metrics: [eventCount, keyEvents]
+    additive_across: [sessionMedium, eventName]
+    caution: >
+      The one fully additive cross-tab in the catalogue. Safe in both directions because both
+      metrics count events, and every event has one name and sits in one session with one medium.
+      That safety comes entirely from the metric list — adding sessions turns it into a 5.3x
+      overcount. Of the eight free metric slots, only eventValue is safe to spend.
