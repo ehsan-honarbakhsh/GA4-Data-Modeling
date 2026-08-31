@@ -1,6 +1,6 @@
 # GA4 Data Modeling
 
-**GA4 Data API table design for BigQuery — scope rules, additivity, and models whose numbers match the GA4 UI.**
+**GA4 Data API table design for BigQuery : scope rules, additivity, and models whose numbers match the GA4 UI.**
 
 ---
 
@@ -14,8 +14,7 @@ table you can slice however you like. It counts things fresh, on the server, for
 question you asked. Ask a slightly different question and you get a legitimately different
 answer.
 
-Most GA4 warehouse projects discover this the hard way, usually after publishing a wrong number
-to someone important. This repo is the shortcut: the rules, the table designs that follow from
+This repo is the shortcut: the rules, the table designs that follow from
 them, and the tests that tell you whether your build is right.
 
 ## What's here
@@ -30,7 +29,7 @@ them, and the tests that tell you whether your build is right.
 ## The one rule to take away
 
 Every table in this design matches the GA4 interface row for row. But **only the no-breakdown
-totals tables give you a correct total** — everywhere else, reaching a headline number means
+totals tables give you a correct total** everywhere else, reaching a headline number means
 summing rows, and summing is where GA4 stops behaving like a database.
 
 For user counts there isn't even an approximation. A monthly user figure has to be one you asked
@@ -40,18 +39,18 @@ GA4 for directly.
 
 ## Start here
 
-1. **[Why GA4 numbers differ](docs/01-why-ga4-numbers-differ.md)** — the one idea everything else
-   rests on. Ten minutes, and worth it even if you never use the rest.
-2. **[Scopes and compatibility](docs/02-scopes-and-compatibility.md)** — which dimensions and
+1. **[Why GA4 numbers differ](docs/01-why-ga4-numbers-differ.md)** the one idea everything else
+   rests on.
+2. **[Scopes and compatibility](docs/02-scopes-and-compatibility.md)** which dimensions and
    metrics can go in the same table, and what breaks when they can't.
-3. **[The report catalogue](docs/03-report-catalogue.md)** — the actual set of tables, what each
+3. **[The report catalogue](docs/03-report-catalogue.md)** the actual set of tables, what each
    one answers, and what it must never be used for.
 
 ## What this repo is not
 
 **It's not a pipeline.** There's no code here that talks to the GA4 API. That's deliberate.
-Whichever tool you use to move data — a managed connector, a scheduled script, whatever comes
-next — the modelling problem is identical. Putting an ingestion layer in the middle would tie
+Whichever tool you use to move data , a managed connector, a scheduled script, whatever comes
+next , the modelling problem is identical. Putting an ingestion layer in the middle would tie
 this to a vendor and hide the part that actually matters.
 
 Instead, [spec/source-contract.md](spec/source-contract.md) defines exactly what the SQL expects
@@ -73,7 +72,7 @@ your own.
 ## Conventions
 
 Table names are generic and prefixed `ga4_`, with the grain in the name:
-`ga4_channel_monthly`, `ga4_traffic_acquisition_daily`. Rename to fit your warehouse — nothing
+`ga4_channel_monthly`, `ga4_traffic_acquisition_daily`. Rename to fit your warehouse , nothing
 depends on the names except the SQL in this repo.
 
 SQL is BigQuery standard SQL. It uses `QUALIFY`, `DATE_TRUNC` and `FORMAT_DATE`, so it isn't
