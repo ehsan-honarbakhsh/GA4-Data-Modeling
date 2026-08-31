@@ -70,7 +70,7 @@ about most.
 You cannot sum users across days. You cannot sum users across channels, devices, countries, or
 segments. You cannot get "users in the last 28 days" from a table of daily users. There is no
 clever SQL that fixes this, because deduplicating people requires knowing which rows are the same
-person — and a pre-aggregated table doesn't carry that.
+person , and a pre-aggregated table doesn't carry that.
 
 The only correct way to get a user count for a period is to have asked GA4 for that exact period.
 Which is why this design has separate daily, weekly and monthly tables rather than one table and
@@ -85,14 +85,11 @@ summing is what this whole page is about. See
 
 ## GA4's own interface doesn't add up either
 
-Worth knowing before someone shows you a screenshot as proof your build is broken.
-
 Open any GA4 report with a breakdown. Add up the rows. Compare to the total at the top. They
 usually differ, and the percentage column often sums to slightly more than 100%.
 
-The interface is doing exactly what the API does — computing the total separately from the rows.
-It isn't a bug and it isn't going to be fixed. When your table disagrees with a GA4 screenshot,
-the first question is always which number in the screenshot, not which line of your SQL.
+The interface is doing exactly what the API does , computing the total separately from the rows.
+It isn't a bug and it isn't going to be fixed.
 
 ---
 
@@ -138,10 +135,8 @@ Use the export when you need cross-tabs you can't predict, user-level joins, or 
 like "how many people bought product X". Accept that your numbers will differ from the interface,
 and that reproducing GA4's session and attribution logic is a real project on its own.
 
-Use the Data API — and this repo — when the numbers need to match what people see in GA4.
+Use the Data API , and this repo , when the numbers need to match what people see in GA4.
 
-Many teams end up running both, for different audiences. That's a reasonable outcome, as long as
-everyone knows which is which.
 
 ---
 
