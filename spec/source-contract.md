@@ -3,8 +3,8 @@
 This repo's SQL doesn't fetch anything from GA4. It expects to find tables that somebody else has
 already loaded. This page defines exactly what those tables have to look like.
 
-Meet this contract with any tool — a managed connector, a scheduled script, whatever you already
-run — and everything downstream works unchanged.
+Meet this contract with any tool , a managed connector, a scheduled script, whatever you already
+run , and everything downstream works unchanged.
 
 ---
 
@@ -104,7 +104,7 @@ properties you have. New properties need no new SQL. This is what the reference 
 
 Whichever you pick, remember that **user counts never sum across properties.** GA4 issues its own
 identifiers per property, so the same person visiting two of your sites is two users and there's
-no way to deduplicate them. Summing gives you "users per property, added together" — a real
+no way to deduplicate them. Summing gives you "users per property, added together" , a real
 figure, but not unique people. Name the column so nobody mistakes it.
 
 ---
