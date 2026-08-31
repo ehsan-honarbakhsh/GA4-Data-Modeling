@@ -1,0 +1,15 @@
+# Credentials and API exports — these often contain auth blocks
+*.env
+.env*
+credentials*.json
+*_connector_full.json
+*_secret*
+
+# Local scratch
+/tmp/
+*.local.sql
+scratch/
+
+# OS
+.DS_Store
+Thumbs.db
