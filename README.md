@@ -1,6 +1,20 @@
-# GA4 Data Modeling
+<p align="center">
+  <img src="assets/logo.svg" alt="GA4 Data Modeling" width="88" height="88">
+</p>
 
-**GA4 Data API table design for BigQuery : scope rules, additivity, and models whose numbers match the GA4 UI.**
+<h1 align="center">GA4 Data Modeling</h1>
+
+<p align="center">
+  <strong>GA4 Data API table design for BigQuery : scope rules, additivity,<br>
+  and models whose numbers match the GA4 UI.</strong>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/source-GA4%20Data%20API-F9AB00" alt="Source: GA4 Data API">
+  <img src="https://img.shields.io/badge/warehouse-BigQuery-4285F4" alt="Warehouse: BigQuery">
+  <img src="https://img.shields.io/badge/reports-36-0F172A" alt="36 reports">
+  <img src="https://img.shields.io/badge/licence-MIT-3FB950" alt="Licence: MIT">
+</p>
 
 ---
 
